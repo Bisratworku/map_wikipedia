@@ -1,12 +1,11 @@
 import * as THREE from "three"
 import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
-
-
 const glScene = new THREE.Scene();
 const cssScene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const glRender = new THREE.WebGLRenderer({antialias : true, alpha : true});
 const CSSRender = new CSS3DRenderer();
+glRender.setPixelRatio(window.devicePixelRatio);
 glRender.setSize(window.innerWidth, window.innerHeight);
 CSSRender.setSize(window.innerWidth, window.innerHeight);
 CSSRender.domElement.style.fontSize = "1px";
@@ -14,46 +13,49 @@ CSSRender.domElement.style.top = 0;
 document.body.appendChild(CSSRender.domElement);
 glRender.setClearColor(0x000000, 0);
 CSSRender.domElement.appendChild(glRender.domElement);
+const mouse = new THREE.Vector3();
+const div = document.createElement("div");
+div.classList.add("contaner");
 
-const header = document.createElement("h1");
-header.classList.add("header");
-header.innerHTML = "War What is it good for"
+const objects = []
+camera.position.z = 15;
 
-const obj = new CSS3DObject(header);
-cssScene.add(obj);
-
-const header2 = document.createElement("h1");
-header2.classList.add("header2");
-header2.innerHTML = "War What is it good for"
-const obj2 = new CSS3DObject(header2);
-cssScene.add(obj2);
-
-camera.position.z = 5
-function createPlane(w, h, position, rotation) {
-
-    var material = new THREE.MeshBasicMaterial({
-      color: 0x000000,
-      opacity: 0.0,
-      side: THREE.DoubleSide
+function createElement(title, x = 0, y = 0, z = 0){
+    const header = document.createElement("h1");    
+    header.classList.add("header");
+    header.innerHTML = title;
+    header.draggable = true;
+    div.appendChild(header);
+    const obj = new CSS3DObject(div);
+    obj.scale.set(0.1,0.1,0.1);
+    obj.position.set(x,y,z);
+    cssScene.add(obj);  
+    objects.push(obj);
+    let drag  = false;
+    header.addEventListener('mousedown', () => {
+      console.log("hello");  
+      drag = true;
     });
-
-    var geometry = new THREE.PlaneGeometry(w, h);
-
-    var mesh = new THREE.Mesh(geometry, material);
-
-    mesh.position.x = position.x;
-    mesh.position.y = position.y;
-    mesh.position.z = position.z;
-
-    mesh.rotation.x = rotation.x;
-    mesh.rotation.y = rotation.y;
-    mesh.rotation.z = rotation.z;
-
-    return mesh;
-  }
-var plane = createPlane(w, h,position,rotation);
-glScene.add(plane);
-
+    header.addEventListener('mousemove', (e) => {
+        if(drag){
+          const mouse  = new THREE.Vector3();
+          let rect = CSSRender.domElement.getBoundingClientRect();
+          mouse.x = (e.clientX/ window.innerWidth) * 2 -1;
+          //mouse.y = e.clientY/ 23;
+          //mouse.z = 0
+          obj.position.normalize()
+          //i.y = -(i.y / window.innerHeight) * 2 + 1;
+          //i.z = 0;
+          console.log(obj.position.x, mouse.x);
+          
+          
+        }
+    })
+    header.addEventListener('mouseup', () => {
+        drag = false;
+    })
+}
+createElement("bisrat", 1);
 function animate(time){
       requestAnimationFrame(animate);
       glRender.render(glScene, camera);
