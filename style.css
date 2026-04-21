@@ -3,6 +3,14 @@
     padding: 0;
     box-sizing: border-box;
 }
-.header{
-    font-size: 1px;
+.contaner{
+    border: 2px solid red;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+h1{
+    font-size: 10px;
 }
