@@ -13,3 +13,6 @@
     text-decoration: none;
     cursor: pointer;
 }
+.anchor:hover{
+    color: rgb(59, 59, 248);
+}
