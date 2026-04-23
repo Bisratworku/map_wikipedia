@@ -74,8 +74,7 @@ function createElement(title,x = 0, y = 0, z = 0){
   window.addEventListener('pointerup', onPointerUp);
 }
 
-//createElement("Hello World", 0, 0, 0);
-//createElement("Hello World", 0, 1, 0);
+
 function readJSON(){
   fetch('wikipedia.json')
     .then(response => response.json())
