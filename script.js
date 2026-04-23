@@ -8,32 +8,12 @@ const CSSRender = new CSS3DRenderer();
 glRender.setPixelRatio(window.devicePixelRatio);
 glRender.setSize(window.innerWidth, window.innerHeight);
 CSSRender.setSize(window.innerWidth, window.innerHeight);
-CSSRender.domElement.style.fontSize = "1px";
 CSSRender.domElement.style.top = 0;
 document.body.appendChild(CSSRender.domElement);
-glRender.setClearColor(0x000000, 0);
-CSSRender.domElement.appendChild(glRender.domElement);
-/*
-const div = document.createElement("div");
-div.draggable = true;
-div.classList.add("container");
-const header = document.createElement("h1");
-header.classList.add("header");
-header.draggable = true;
-header.innerHTML = "Hello World";
-div.appendChild(header);
-const Obj = new CSS3DObject(div);
-Obj.position.set(10, 9, 0);
-Obj.scale.set(0.1, 0.1, 0.1);
-const i =  Obj.position.normalize();
 
-window.addEventListener("mousemove", (e) => {
-  const x = (e.clientX / window.innerWidth) * 2 - 1;
-  const y = -(e.clientY / window.innerHeight) * 2 + 1;
-  //Obj.position.set(x * 10, y * 10, 0);
-  console.log(x,y);
-})*/
-//cssScene.add(Obj);
+CSSRender.domElement.appendChild(glRender.domElement);
+CSSRender.domElement.style.backgroundColor = "black";
+
 camera.position.z = 15;
 function ndcToWorld(ndcX, ndcY, targetZ){
   const vec = new THREE.Vector3(ndcX, ndcY, 0.5);
@@ -42,15 +22,30 @@ function ndcToWorld(ndcX, ndcY, targetZ){
   const distance = (targetZ - camera.position.z) / dir.z;
   return camera.position.clone().add(dir.multiplyScalar(distance));
 }
-function createElement(title, x = 0, y = 0, z = 0){
+
+function createElement(title,x = 0, y = 0, z = 0){
   const div = document.createElement("div");
-  div.draggable = false;
+  div.draggable = true;
   div.classList.add("container");
   const header = document.createElement("h1");
   header.classList.add("header");
   header.draggable = true;
-  header.innerHTML = title;
+  //header.innerHTML = title;
+  const anchor = document.createElement("a");
+  anchor.classList.add("anchor");
+  anchor.innerHTML = title;
+  anchor.href = `https://en.wikipedia.org/wiki/${title}`;
+  header.appendChild(anchor);
   div.appendChild(header);
+  header.animate([
+    {transform : "translate(0, 0)"},
+    {transform : `translate(${Math.random() * 30 - 15}px, ${Math.random() * 30 - 15}px)`},
+    {transform : "translate(0, 0)"}
+  ],{
+    duration : 5000,
+    iterations : Infinity,
+    easing : "ease-in-out",
+  })
   const obj = new CSS3DObject(div);
   obj.position.set(x, y, z);
   obj.scale.set(0.1, 0.1, 0.1);
@@ -77,18 +72,15 @@ function createElement(title, x = 0, y = 0, z = 0){
   header.addEventListener('pointerdown', onPointerDown);
   window.addEventListener('pointermove', onPointerMove);
   window.addEventListener('pointerup', onPointerUp);
-  return obj.position;
 }
 
 //createElement("Hello World", 0, 0, 0);
-//createElement("Bisrat ", 5, 5, 0);
-//createElement("Worku", -5, -5, 0);
+//createElement("Hello World", 0, 1, 0);
 function readJSON(){
-  fetch('sample.json')
+  fetch('wikipedia.json')
     .then(response => response.json())
     .then(data => {
-        let c = createElement(data.title, 0, 0, 0);
-        console.log(c);
+        createElement(data.title, 0, 0, 0);
         function trivese(arr){
           
           let branch = [];
@@ -96,19 +88,19 @@ function readJSON(){
             return 
           }
           else{
-            
             for(let i = 0; i < arr.length; i++){
-               createElement(arr[i].title,Math.random() , Math.random(), Math.random());  
-              branch.push(arr[i].branches)  
+              createElement(arr[i].title, Math.random() * 60 - 30 , Math.random() * 60 - 30 , 0);  
+              branch.push(arr[i].branches)
+              
             }
-            
             trivese(branch.flat());
           }
         }    
-        trivese(data.branches)
+        trivese(data.branches, Math.random() * 5, Math.random() * 5, 0 );
     });
 }
 readJSON();
+
 function animate(time){
       requestAnimationFrame(animate);
       glRender.render(glScene, camera);
