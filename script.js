@@ -1,5 +1,6 @@
 import * as THREE from "three"
 import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
+
 const glScene = new THREE.Scene();
 const cssScene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -8,13 +9,14 @@ const CSSRender = new CSS3DRenderer();
 glRender.setPixelRatio(window.devicePixelRatio);
 glRender.setSize(window.innerWidth, window.innerHeight);
 CSSRender.setSize(window.innerWidth, window.innerHeight);
-CSSRender.domElement.style.top = 0;
+//CSSRender.domElement.style.top = 0;
 document.body.appendChild(CSSRender.domElement);
 
 CSSRender.domElement.appendChild(glRender.domElement);
 CSSRender.domElement.style.backgroundColor = "black";
-
 camera.position.z = 15;
+
+
 function ndcToWorld(ndcX, ndcY, targetZ){
   const vec = new THREE.Vector3(ndcX, ndcY, 0.5);
   vec.unproject(camera);
@@ -95,11 +97,32 @@ function readJSON(){
             trivese(branch.flat());
           }
         }    
-        trivese(data.branches, Math.random() * 5, Math.random() * 5, 0 );
+        trivese(data.branches);
     });
 }
 readJSON();
-
+function json(){
+  const arr = [];
+  fetch('wikipedia.json')
+  .then(response => response.json())
+  .then(data => {
+      function read(json){
+            console.log(json, json.branches);
+            createElement(json.title, Math.random() * 100 - 50, Math.random() * 100 - 50, 0);
+            if(json.branches == null){
+              return console.log("dfsfsdf");
+            }
+            else{
+              for(let i = 0; i < json.branches.length; i++){
+                read(json.branches[i])
+              }
+            }
+            
+      }
+      read(data);    
+  })
+}
+//json();
 function animate(time){
       requestAnimationFrame(animate);
       glRender.render(glScene, camera);
