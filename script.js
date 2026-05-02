@@ -1,133 +1,51 @@
-import * as THREE from "three"
-//import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
-
-const glScene = new THREE.Scene();
-//const cssScene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const glRender = new THREE.WebGLRenderer({antialias : true});
-//const CSSRender = new CSS3DRenderer();
-glRender.setPixelRatio(window.devicePixelRatio);
-glRender.setSize(window.innerWidth, window.innerHeight);
-//CSSRender.setSize(window.innerWidth, window.innerHeight);
-//CSSRender.domElement.style.top = 0;
-document.body.appendChild(glRender.domElement);
-camera.position.z = 5;
-
-
-function ndcToWorld(ndcX, ndcY, targetZ){
-  const vec = new THREE.Vector3(ndcX, ndcY, 0.5);
-  vec.unproject(camera);
-  const dir = vec.sub(camera.position).normalize();
-  const distance = (targetZ - camera.position.z) / dir.z;
-  return camera.position.clone().add(dir.multiplyScalar(distance));
-}
-
-function createElement(title,x = 0, y = 0, z = 0){
-  const div = document.createElement("div");
-  div.draggable = true;
-  div.classList.add("container");
-  const header = document.createElement("h1");
-  header.classList.add("header");
-  header.draggable = true;
-  //header.innerHTML = title;
-  const anchor = document.createElement("a");
-  anchor.classList.add("anchor");
-  anchor.innerHTML = title;
-  anchor.href = `https://en.wikipedia.org/wiki/${title}`;
-  header.appendChild(anchor);
-  div.appendChild(header);
-  header.animate([
-    {transform : "translate(0, 0)"},
-    {transform : `translate(${Math.random() * 30 - 15}px, ${Math.random() * 30 - 15}px)`},
-    {transform : "translate(0, 0)"}
-  ],{
-    duration : 5000,
-    iterations : Infinity,
-    easing : "ease-in-out",
-  })
-  const obj = new CSS3DObject(div);
-  obj.position.set(x, y, z);
-  obj.scale.set(0.1, 0.1, 0.1);
-  cssScene.add(obj);
-  // pointer-based dragging mapped to world coordinates (full range)
-  let dragging = false;
-  let dragDepth = obj.position.z;
-  header.style.touchAction = 'none';
-  const onPointerDown = (e) => {
-    dragging = true;
-    dragDepth = obj.position.z;
-    e.preventDefault();
-  };
-  const onPointerMove = (e) => {
-    if(!dragging) return;
-    const rect = CSSRender.domElement.getBoundingClientRect();
-    const ndcX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    const ndcY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-    const worldPos = ndcToWorld(ndcX, ndcY, dragDepth);
-    obj.position.x = worldPos.x;
-    obj.position.y = worldPos.y;
-  };
-  const onPointerUp = () => { dragging = false; };
-  header.addEventListener('pointerdown', onPointerDown);
-  window.addEventListener('pointermove', onPointerMove);
-  window.addEventListener('pointerup', onPointerUp);
-}
-
-
-function readJSON(){
-  fetch('wikipedia.json')
-    .then(response => response.json())
-    .then(data => {
-        createElement(data.title, 0, 0, 0);
-        function trivese(arr){
-          
-          let branch = [];
-          if(arr[0] === null){
-            return 
-          }
-          else{
-            for(let i = 0; i < arr.length; i++){
-              createElement(arr[i].title, Math.random() * 60 - 30 , Math.random() * 60 - 30 , 0);  
-              branch.push(arr[i].branches)
-              
-            }
-            trivese(branch.flat());
-          }
-        }    
-        trivese(data.branches);
-    });
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+const Graph = new ForceGraph3D(document.getElementById('3d-graph'), {
+      extraRenderers: [new CSS2DRenderer()]
+})
+function org(data){
+  let nodes = [];
+  let links = [];
+  function read(data, group = 0){  
+      let node = {"id" : data.title, "group" : group}
+      nodes.push(node);
+      try{
+        for(let j = 0; j < data.branches.length; j++){
+          let link =   {"source" :  data.title, "target" : data.branches[j].title};
+          links.push(link);
+        }
+      }catch(error){
+        console.error(error);
+      }
+      
+      if(data.branches == null){
+        return
+      }
+      for(let i = 0; i < data.branches.length; i++){
+            read(data.branches[i], group + 1); 
+      }
+    }
+  read(data);
+  return {links, nodes};
 }
 
 function json(){
-  const arr = [];
-  fetch('wikipedia.json')
-  .then(response => response.json())
+  let group = 0;
+  fetch("wikipedia-short.json")
+  .then(responce => responce.json())
   .then(data => {
-      function read(json){
-            console.log(json, json.branches);
-            createElement(json.title, Math.random() * 100 - 50, Math.random() * 100 - 50, 0);
-            if(json.branches == null){
-              return console.log("dfsfsdf");
-            }
-            else{
-              for(let i = 0; i < json.branches.length; i++){
-                read(json.branches[i])
-              }
-            }
-            
-      }
-      read(data);    
+    let gData = org(data);
+    const Graph = new ForceGraph3D(document.getElementById('3d-graph'), {
+      extraRenderers: [new CSS2DRenderer()]
+    })
+    .graphData(gData)
+    .nodeAutoColorBy('group')
+    .nodeThreeObject(node =>{
+      const nodeEl = document.createElement('div');
+      nodeEl.textContent = node.id;
+      nodeEl.style.color = node.color;
+      nodeEl.classList.add("links");
+      return new CSS2DObject(nodeEl);
+    }).nodeThreeObjectExtend(true);
   })
 }
-//json();
-function animate(time){
-      requestAnimationFrame(animate);
-      glRender.render(glScene, camera);
-}
-animate();
-function resize(){
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  glRender.setSize(window.innerWidth, window.innerHeight);
-}
-window.addEventListener('resize', resize);
+json()
