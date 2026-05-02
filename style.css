@@ -1,15 +1,12 @@
+
+
 *{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-.anchor{
-    color: rgba(125, 199, 13, 0.897);
-    font-size: 6px;
-    text-decoration: none;
-    cursor: pointer;
-}
-.anchor:hover{
-    color: rgb(59, 59, 248);
+.labels{
+    font-family: "Amarna";
+    font-size: 15px;
 }
