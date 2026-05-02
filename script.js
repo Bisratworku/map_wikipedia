@@ -1,20 +1,17 @@
 import * as THREE from "three"
-import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
+//import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
 
 const glScene = new THREE.Scene();
-const cssScene = new THREE.Scene();
+//const cssScene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const glRender = new THREE.WebGLRenderer({antialias : true, alpha : true});
-const CSSRender = new CSS3DRenderer();
+const glRender = new THREE.WebGLRenderer({antialias : true});
+//const CSSRender = new CSS3DRenderer();
 glRender.setPixelRatio(window.devicePixelRatio);
 glRender.setSize(window.innerWidth, window.innerHeight);
-CSSRender.setSize(window.innerWidth, window.innerHeight);
+//CSSRender.setSize(window.innerWidth, window.innerHeight);
 //CSSRender.domElement.style.top = 0;
-document.body.appendChild(CSSRender.domElement);
-
-CSSRender.domElement.appendChild(glRender.domElement);
-CSSRender.domElement.style.backgroundColor = "black";
-camera.position.z = 15;
+document.body.appendChild(glRender.domElement);
+camera.position.z = 5;
 
 
 function ndcToWorld(ndcX, ndcY, targetZ){
@@ -100,7 +97,7 @@ function readJSON(){
         trivese(data.branches);
     });
 }
-readJSON();
+
 function json(){
   const arr = [];
   fetch('wikipedia.json')
@@ -126,13 +123,11 @@ function json(){
 function animate(time){
       requestAnimationFrame(animate);
       glRender.render(glScene, camera);
-      CSSRender.render(cssScene, camera);
 }
 animate();
 function resize(){
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   glRender.setSize(window.innerWidth, window.innerHeight);
-  CSSRender.setSize(window.innerWidth, window.innerHeight);
 }
 window.addEventListener('resize', resize);
