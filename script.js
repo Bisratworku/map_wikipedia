@@ -43,7 +43,7 @@ function json(){
       const nodeEl = document.createElement('div');
       nodeEl.textContent = node.id;
       nodeEl.style.color = node.color;
-      nodeEl.classList.add("links");
+      nodeEl.classList.add("labels");
       return new CSS2DObject(nodeEl);
     }).nodeThreeObjectExtend(true);
   })
