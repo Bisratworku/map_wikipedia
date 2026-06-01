@@ -38,13 +38,14 @@ function json(){
       extraRenderers: [new CSS2DRenderer()]
     })
     .graphData(gData)
-    .nodeAutoColorBy('group')
+    .nodeColor(node => {
+        return "transparent";
+      })
     .nodeThreeObject(node =>{
       const nodeEl = document.createElement('div');
       nodeEl.innerHTML = `<a class = "links" href = 'https://en.wikipedia.org/wiki/${node.id}' target="_blank">${node.id}</a>`;
       /*nodeEl.href = "https://en.wikipedia.org/wiki/" + node.id;
       nodeEl.textContent = node.id;*/
-      nodeEl.style.color = node.color;
       nodeEl.classList.add("labels");
       return new CSS2DObject(nodeEl);
     })
