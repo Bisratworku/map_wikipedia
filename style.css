@@ -7,10 +7,11 @@
 }
 
 .labels{
-    font-family: "Amarna";
-    font-size: 15px;
+    font-family:  "Playfair Display", serif;
 }
 .links {
     text-decoration: none;
     color: inherit;
+    font-size: 15px;
+    color : #db6300f6;
 }
