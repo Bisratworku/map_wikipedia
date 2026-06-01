@@ -10,3 +10,7 @@
     font-family: "Amarna";
     font-size: 15px;
 }
+.links {
+    text-decoration: none;
+    color: inherit;
+}
