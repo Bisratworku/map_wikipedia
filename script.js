@@ -41,11 +41,17 @@ function json(){
     .nodeAutoColorBy('group')
     .nodeThreeObject(node =>{
       const nodeEl = document.createElement('div');
-      nodeEl.textContent = node.id;
+      nodeEl.innerHTML = `<a class = "links" href = 'https://en.wikipedia.org/wiki/${node.id}' target="_blank">${node.id}</a>`;
+      /*nodeEl.href = "https://en.wikipedia.org/wiki/" + node.id;
+      nodeEl.textContent = node.id;*/
       nodeEl.style.color = node.color;
       nodeEl.classList.add("labels");
       return new CSS2DObject(nodeEl);
-    }).nodeThreeObjectExtend(true);
+    })
+    .nodeThreeObjectExtend(true)
+    .onNodeClick(node => {
+      window.open("https://en.wikipedia.org/wiki/" + node.id, "_blank");
+    });
   })
 }
 json()
